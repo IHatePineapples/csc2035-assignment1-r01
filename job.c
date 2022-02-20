@@ -3,6 +3,7 @@
  * 000000000
  */
 #include <stdlib.h>
+#include <string.h>
 #include "job.h"
 
 /* 
@@ -19,6 +20,8 @@ job_t* job_new(pid_t pid, unsigned int id, const char* label) {
  *      this function
  */
 job_t* job_copy(job_t* dst, job_t* src) {
+    (void) job_set(dst, src->pid,src->id, src->label);
+
     return src;
 }
 
@@ -27,8 +30,15 @@ job_t* job_copy(job_t* dst, job_t* src) {
  * currently only sets the pid and id fields of a job to zero.
  */
 void job_init(job_t* job) {
-    job->pid = 0;
-    job->id = 0;
+
+    if (job){
+        job->pid = 0;
+        job->id = 0;
+        for (int i = 0; i < MAX_NAME_SIZE; i++ ){
+            job -> label[i] = 0;
+        }
+
+    }
 }
 
 /* 
@@ -36,15 +46,31 @@ void job_init(job_t* job) {
  * currently only compares the pid and id fields of a job.
  */
 bool job_is_equal(job_t* j1, job_t* j2) {
-    return j1->pid == j2->pid && j1->id == j2->id;
-}
+    if (j1 == NULL && j2 == NULL) {
+        return true;
+    }
 
+    if (!j1) return false;
+    if (!j2) return false;
+
+
+    for (int i = 0; i < strnlen(j1 -> label, MAX_NAME_SIZE); i++) {
+        if (j1->label[i] != j2->label[i]) return false;
+    }
+        return j1->pid == j2->pid && j1->id == j2->id;
+
+}
 /*
  * TODO: you must implement this function.
  * Hint:
  * - read the information in job.h about padding and truncation of job labels
  */
 job_t* job_set(job_t* job, pid_t pid, unsigned int id, const char* label) {
+    job -> pid = pid;
+    job -> id = id;
+    for (int i = 0; i < strnlen(label, MAX_NAME_SIZE); i++ ){
+        job -> label[i] = label[i];
+    }
     return job;
 }
 
@@ -54,5 +80,12 @@ job_t* job_set(job_t* job, pid_t pid, unsigned int id, const char* label) {
  * - look at the allocation of a job in job_new
  */
 void job_delete(job_t* job) {
+    job -> pid = 0;
+    job -> id = 0;
+    for (int i = 0; i < strnlen(job -> label, MAX_NAME_SIZE); i++ ){
+        job -> label[i] = 0;
+    }
+    free(job -> label);
+    free(job) ;
     return;
 }
