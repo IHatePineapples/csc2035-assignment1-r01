@@ -20,9 +20,22 @@ job_t* job_new(pid_t pid, unsigned int id, const char* label) {
  *      this function
  */
 job_t* job_copy(job_t* dst, job_t* src) {
-    (void) job_set(dst, src->pid,src->id, src->label);
 
-    return src;
+    if (!src) return NULL;
+    if (dst && dst == src){
+        return src;
+    }
+
+    if (!dst){
+        dst = job_new(src -> pid, src -> id, src ->label);
+        return dst;
+    }
+
+    if (!job_is_equal(src, dst)){
+        dst = job_set(dst, src->pid,src->id, src->label);
+    }
+
+    return dst;
 }
 
 /* 
@@ -54,10 +67,11 @@ bool job_is_equal(job_t* j1, job_t* j2) {
     if (!j2) return false;
 
 
-    for (int i = 0; i < strnlen(j1 -> label, MAX_NAME_SIZE); i++) {
+    for (int i = 0; i < strnlen(j1 -> label, MAX_NAME_SIZE-1); i++) {
         if (j1->label[i] != j2->label[i]) return false;
     }
-        return j1->pid == j2->pid && j1->id == j2->id;
+
+    return j1->pid == j2->pid && j1->id == j2->id;
 
 }
 /*
@@ -66,11 +80,15 @@ bool job_is_equal(job_t* j1, job_t* j2) {
  * - read the information in job.h about padding and truncation of job labels
  */
 job_t* job_set(job_t* job, pid_t pid, unsigned int id, const char* label) {
+
+    if (!job) return NULL;
+
     job -> pid = pid;
     job -> id = id;
-    for (int i = 0; i < strnlen(label, MAX_NAME_SIZE); i++ ){
+    for (int i = 0; i < strnlen(label, MAX_NAME_SIZE-1); i++ ){
         job -> label[i] = label[i];
     }
+    job -> label[MAX_NAME_SIZE-1] = 0 ;
     return job;
 }
 
@@ -80,12 +98,15 @@ job_t* job_set(job_t* job, pid_t pid, unsigned int id, const char* label) {
  * - look at the allocation of a job in job_new
  */
 void job_delete(job_t* job) {
-    job -> pid = 0;
+
+    if (!job) return;
+
+    job -> pid =0;
     job -> id = 0;
-    for (int i = 0; i < strnlen(job -> label, MAX_NAME_SIZE); i++ ){
+    for (int i = 0; i < strnlen(job -> label, MAX_NAME_SIZE-1); i++ ){
         job -> label[i] = 0;
     }
-    free(job -> label);
+    job -> label[MAX_NAME_SIZE-1] = 0 ;
+    //free(job -> label);
     free(job) ;
-    return;
 }
