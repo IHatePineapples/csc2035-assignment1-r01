@@ -1,0 +1,34 @@
+name: Compile error check 
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: "0 2 * * 1-6"
+  workflow_dispatch:
+  
+  
+jobs:
+  
+  compiling:
+    name: compiling
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      
+    - name: making all
+      run: make all
+    
+    - name: cleaning first make
+      run: make clean
+      
+    - name: making no args
+      run: make
+    
+    - name: final cleaning
+      run: make clean
+     
+    
