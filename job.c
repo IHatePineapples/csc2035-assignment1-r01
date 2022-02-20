@@ -88,6 +88,10 @@ job_t* job_set(job_t* job, pid_t pid, unsigned int id, const char* label) {
     for (int i = 0; i < strnlen(label, MAX_NAME_SIZE-1); i++ ){
         job -> label[i] = label[i];
     }
+    for (size_t i = strnlen(label, MAX_NAME_SIZE-1); i < MAX_NAME_SIZE; i++ ){
+        job -> label[i] = PAD_CHAR;
+    }
+
     job -> label[MAX_NAME_SIZE-1] = 0 ;
     return job;
 }
