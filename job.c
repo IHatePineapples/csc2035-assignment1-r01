@@ -4,6 +4,7 @@
  */
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h> // For printf(), not needed
 #include "job.h"
 
 /* 
@@ -48,7 +49,7 @@ void job_init(job_t* job) {
         job->pid = 0;
         job->id = 0;
         for (int i = 0; i < MAX_NAME_SIZE; i++ ){
-            job -> label[i] = 0;
+            job -> label[i] = '\0';
         }
 
     }
@@ -59,10 +60,7 @@ void job_init(job_t* job) {
  * currently only compares the pid and id fields of a job.
  */
 bool job_is_equal(job_t* j1, job_t* j2) {
-    if (j1 == NULL && j2 == NULL) {
-        return true;
-    }
-
+    if (j1 == NULL && j2 == NULL) return true;
     if (!j1) return false;
     if (!j2) return false;
 
@@ -92,7 +90,7 @@ job_t* job_set(job_t* job, pid_t pid, unsigned int id, const char* label) {
         job -> label[i] = PAD_CHAR;
     }
 
-    job -> label[MAX_NAME_SIZE-1] = 0 ;
+    job -> label[MAX_NAME_SIZE-1] = '\0' ;
     return job;
 }
 
