@@ -1,0 +1,11 @@
+a.out
+bin/test
+bin
+core.*
+bin/core.*
+bin/test/core.*
+*.o
+objects
+objects/test
+out
+.idea
