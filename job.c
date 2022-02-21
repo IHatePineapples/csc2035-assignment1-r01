@@ -61,15 +61,11 @@ void job_init(job_t* job) {
  */
 bool job_is_equal(job_t* j1, job_t* j2) {
     if (j1 == NULL && j2 == NULL) return true;
-    if (!j1) return false;
-    if (!j2) return false;
+    if (!j1 || !j2) return false;
 
+    int i = strncmp(j1->label,j2->label,MAX_NAME_SIZE);
 
-    for (int i = 0; i < strnlen(j1 -> label, MAX_NAME_SIZE-1); i++) {
-        if (j1->label[i] != j2->label[i]) return false;
-    }
-
-    return j1->pid == j2->pid && j1->id == j2->id;
+    return j1->pid == j2->pid && j1->id == j2->id && !i;
 
 }
 /*
@@ -83,9 +79,7 @@ job_t* job_set(job_t* job, pid_t pid, unsigned int id, const char* label) {
 
     job -> pid = pid;
     job -> id = id;
-    for (int i = 0; i < strnlen(label, MAX_NAME_SIZE-1); i++ ){
-        job -> label[i] = label[i];
-    }
+    strncpy( job->label, label,MAX_NAME_SIZE);
     for (size_t i = strnlen(label, MAX_NAME_SIZE-1); i < MAX_NAME_SIZE; i++ ){
         job -> label[i] = PAD_CHAR;
     }
@@ -106,7 +100,7 @@ void job_delete(job_t* job) {
     job -> pid =0;
     job -> id = 0;
     for (int i = 0; i < strnlen(job -> label, MAX_NAME_SIZE-1); i++ ){
-        job -> label[i] = 0;
+        job -> label[i] = '\0';
     }
     job -> label[MAX_NAME_SIZE-1] = 0 ;
     //free(job -> label);
