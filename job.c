@@ -4,7 +4,7 @@
  */
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h> // For printf(), not needed
+#include <stdio.h> // For printf(), not needed TODO: clean
 #include "job.h"
 
 /* 
@@ -23,18 +23,14 @@ job_t* job_new(pid_t pid, unsigned int id, const char* label) {
 job_t* job_copy(job_t* dst, job_t* src) {
 
     if (!src) return NULL;
-    if (dst && dst == src){
-        return src;
-    }
+    if (dst && dst == src)return src;
 
     if (!dst){
         dst = job_new(src -> pid, src -> id, src ->label);
         return dst;
     }
 
-    if (!job_is_equal(src, dst)){
-        dst = job_set(dst, src->pid,src->id, src->label);
-    }
+    if (!job_is_equal(src, dst)) dst = job_set(dst, src->pid,src->id, src->label);
 
     return dst;
 }
@@ -48,10 +44,7 @@ void job_init(job_t* job) {
     if (job){
         job->pid = 0;
         job->id = 0;
-        for (int i = 0; i < MAX_NAME_SIZE; i++ ){
-            job -> label[i] = '\0';
-        }
-
+        for (int i = 0; i < MAX_NAME_SIZE; i++ ) job -> label[i] = '\0';
     }
 }
 
@@ -66,7 +59,6 @@ bool job_is_equal(job_t* j1, job_t* j2) {
     int i = strncmp(j1->label,j2->label,MAX_NAME_SIZE);
 
     return j1->pid == j2->pid && j1->id == j2->id && !i;
-
 }
 /*
  * TODO: you must implement this function.
@@ -77,14 +69,16 @@ job_t* job_set(job_t* job, pid_t pid, unsigned int id, const char* label) {
 
     if (!job) return NULL;
 
-    job -> pid = pid;
-    job -> id = id;
-    strncpy( job->label, label,MAX_NAME_SIZE);
-    for (size_t i = strnlen(label, MAX_NAME_SIZE-1); i < MAX_NAME_SIZE; i++ ){
-        job -> label[i] = PAD_CHAR;
+    job-> pid = pid;
+    job-> id = id;
+    if (label) {
+        strncpy(job->label, label, MAX_NAME_SIZE);
+        for (size_t i = strnlen(label, MAX_NAME_SIZE ); i < MAX_NAME_SIZE; i++) job->label[i] = PAD_CHAR;
     }
-
-    job -> label[MAX_NAME_SIZE-1] = '\0' ;
+    else {
+        for (int i = 0; i < MAX_NAME_SIZE; i++) job->label[i] = PAD_CHAR;
+    }
+    job-> label[MAX_NAME_SIZE-1] = '\0' ;
     return job;
 }
 
@@ -97,12 +91,11 @@ void job_delete(job_t* job) {
 
     if (!job) return;
 
-    job -> pid =0;
-    job -> id = 0;
-    for (int i = 0; i < strnlen(job -> label, MAX_NAME_SIZE-1); i++ ){
-        job -> label[i] = '\0';
+    job-> pid = 0;
+    job-> id = 0;
+    for (int i = 0; i < MAX_NAME_SIZE; i++ ){
+        job-> label[i] = '\0';
     }
-    job -> label[MAX_NAME_SIZE-1] = 0 ;
-    //free(job -> label);
+    job-> label[MAX_NAME_SIZE-1] = '\0' ;
     free(job) ;
 }
