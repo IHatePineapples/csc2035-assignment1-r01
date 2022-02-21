@@ -4,7 +4,7 @@
  */
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h> // For printf(), not needed TODO: clean
+#include <stdio.h> // For printf(), not needed TODO: remove this #include
 #include "job.h"
 
 /* 
@@ -74,9 +74,12 @@ job_t* job_set(job_t* job, pid_t pid, unsigned int id, const char* label) {
     if (label) {
         strncpy(job->label, label, MAX_NAME_SIZE);
         for (size_t i = strnlen(label, MAX_NAME_SIZE ); i < MAX_NAME_SIZE; i++) job->label[i] = PAD_CHAR;
+        job-> label[MAX_NAME_SIZE-1] = '\0' ;
     }
     else {
         for (int i = 0; i < MAX_NAME_SIZE; i++) job->label[i] = PAD_CHAR;
+        //strncpy(job->label, "*******************************", MAX_NAME_SIZE);
+
     }
     job-> label[MAX_NAME_SIZE-1] = '\0' ;
     return job;
