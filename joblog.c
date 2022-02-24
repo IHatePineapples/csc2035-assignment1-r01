@@ -73,7 +73,28 @@ int joblog_init(proc_t* proc) {
  *      and the documentation in joblog.h for when to do dynamic allocation
  */
 char* joblog_read_entry(proc_t* proc, int entry_num, char* buf) {
-    return NULL;
+    if (!proc) return NULL;
+    if (entry_num <0) return NULL;
+
+    char* f_name;
+    asprintf(&f_name, JOBLOG_NAME_FMT, JOBLOG_PATH, proc->type_label,
+             proc->id);
+
+    FILE* f = fopen(f_name, "r");
+
+    if (!f) return NULL;
+
+    if (fseek(f, entry_num * (JOBLOG_ENTRY_SIZE -1), SEEK_SET)
+    && fgets(buf, JOBLOG_ENTRY_SIZE, f)) {
+        buf[JOBLOG_ENTRY_SIZE -1] = '\0';
+        fclose(f);
+       return buf;
+    }
+    else{
+        fclose(f);
+        return NULL;
+    }
+
 }
 
 /* 
