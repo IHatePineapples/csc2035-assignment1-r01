@@ -125,5 +125,9 @@ void joblog_write_entry(proc_t* proc, job_t* job) {
  * TODO: you must implement this function.
  */
 void joblog_delete(proc_t* proc) {
-    return;
+    if (!proc)
+        return;
+    char* logfile_name = new_log_name(proc);
+    remove(logfile_name);
+    free(logfile_name);
 }
