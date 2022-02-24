@@ -118,7 +118,34 @@ char* joblog_read_entry(proc_t* proc, int entry_num, char* buf) {
  * - remember new entries are appended to a log file
  */
 void joblog_write_entry(proc_t* proc, job_t* job) {
-    return;
+
+    int init_errno = errno;
+
+    if (!proc) return;
+    if (!job) return;
+
+    char* f_name = new_log_name(proc);
+
+    if (!f_name){
+        errno = init_errno;
+        return;
+    }
+
+    //"pid:%07d,id:%05d,label:%s\n"
+    FILE* f = fopen(f_name, "r");
+
+    if (!f) {
+        errno = init_errno;
+        return;
+    }
+    fprintf(f,JOBLOG_ENTRY_FMT,job->pid, job->id, job->label );
+    printf(JOBLOG_ENTRY_FMT,job->pid, job->id, job->label );
+
+    fclose(f);
+    free(f_name);
+
+    errno = init_errno;
+
 }
 
 /* 
