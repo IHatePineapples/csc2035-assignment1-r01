@@ -74,7 +74,7 @@ int joblog_init(proc_t* proc) {
  */
 char* joblog_read_entry(proc_t* proc, int entry_num, char* buf) {
 
-    int entry_errno = errno;
+    int init_errno = errno;
 
 
     if (!proc) {
@@ -86,29 +86,37 @@ char* joblog_read_entry(proc_t* proc, int entry_num, char* buf) {
         return NULL;
     }
 
-    char* f_name;
-    if (!asprintf(&f_name, JOBLOG_NAME_FMT, JOBLOG_PATH, proc->type_label,
-             proc->id)){
-        //errno = entry_errno;
+    char* f_name = new_log_name(proc);
+
+    if (!f_name){
+        errno = init_errno;
+        free(f_name);
         return NULL;
     };
-
     FILE* f = fopen(f_name, "r");
-
-    if (!f) return NULL;
-
-    if (fseek(f, entry_num * (JOBLOG_ENTRY_SIZE -1), SEEK_SET)
-    && fgets(buf, JOBLOG_ENTRY_SIZE, f)) {
-        buf[JOBLOG_ENTRY_SIZE -1] = '\0';
-        fclose(f);
-        return buf;
-    }
-    else{
-        errno = entry_errno;
-        fclose(f);
+    free(f_name);
+    if (!f) {
+        errno = init_errno;
         return NULL;
     }
+    if (buf) {
+        if (fseek(f, entry_num * (JOBLOG_ENTRY_SIZE - 1), SEEK_SET) > -1
+            && fgets(buf, JOBLOG_ENTRY_SIZE, f)) {
+            buf[JOBLOG_ENTRY_SIZE - 1] = '\0';
+            fclose(f);
+            return buf;
+        } else {
+            errno = init_errno;
+            fclose(f);
+            return NULL;
+        }
+    }
+    else{
+        if (sizeof(buf) >= JOBLOG_ENTRY_SIZE){
 
+        }
+        //char* new_buf = malloc()
+    }
 }
 
 /* 
@@ -128,21 +136,22 @@ void joblog_write_entry(proc_t* proc, job_t* job) {
 
     if (!f_name){
         errno = init_errno;
+        free(f_name);
         return;
     }
 
     //"pid:%07d,id:%05d,label:%s\n"
-    FILE* f = fopen(f_name, "r");
-
+    FILE* f = fopen(f_name, "a");
+    free(f_name);
     if (!f) {
         errno = init_errno;
         return;
     }
     fprintf(f,JOBLOG_ENTRY_FMT,job->pid, job->id, job->label );
-    printf(JOBLOG_ENTRY_FMT,job->pid, job->id, job->label );
+    //printf(JOBLOG_ENTRY_FMT,job->pid, job->id, job->label );
 
     fclose(f);
-    free(f_name);
+
 
     errno = init_errno;
 
