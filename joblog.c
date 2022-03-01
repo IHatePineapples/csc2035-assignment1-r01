@@ -3,6 +3,7 @@
  * 000000000
  */
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -99,22 +100,43 @@ char* joblog_read_entry(proc_t* proc, int entry_num, char* buf) {
         errno = init_errno;
         return NULL;
     }
-    if (buf) {
-        if (fseek(f, entry_num * (JOBLOG_ENTRY_SIZE - 1), SEEK_SET) > -1
-            && fgets(buf, JOBLOG_ENTRY_SIZE, f)) {
-            buf[JOBLOG_ENTRY_SIZE - 1] = '\0';
-            fclose(f);
-            return buf;
-        } else {
-            errno = init_errno;
-            fclose(f);
-            return NULL;
-        }
+
+    //int r_fseek = fseek(f, entry_num * (JOBLOG_ENTRY_SIZE - 1), SEEK_SET);
+    int r_fseek = fseek(f, entry_num * (JOBLOG_ENTRY_SIZE - 1), SEEK_SET);
+    char s[JOBLOG_ENTRY_SIZE];
+    char * r_fgets1 = fgets(s,JOBLOG_ENTRY_SIZE,f);
+    if (r_fseek > -1){
+        errno = init_errno;
+        return NULL;
     }
-    else{
-        if (sizeof(buf) >= JOBLOG_ENTRY_SIZE){
+    if (!r_fgets1){
+        errno = init_errno;
+        free(r_fgets1);
+        return NULL;
+
+    }
+
+
+    if (buf) {
+        char *r_fgets = fgets(buf,JOBLOG_ENTRY_SIZE,f);
+
+        if (!r_fgets){
+            errno = init_errno;
+            free(r_fgets);
+            return NULL;
 
         }
+
+        buf[JOBLOG_ENTRY_SIZE - 1] = '\0';
+
+        fclose(f);
+        free(r_fgets);
+        return buf;
+
+    }
+    else{
+
+        return buf;
         //char* new_buf = malloc()
     }
 }
