@@ -74,9 +74,7 @@ int joblog_init(proc_t* proc) {
  *      and the documentation in joblog.h for when to do dynamic allocation
  */
 char* joblog_read_entry(proc_t* proc, int entry_num, char* buf) {
-
     int init_errno = errno;
-
 
     if (!proc || entry_num <0) {
         errno = init_errno;
@@ -84,74 +82,43 @@ char* joblog_read_entry(proc_t* proc, int entry_num, char* buf) {
     }
 
     char* f_name = new_log_name(proc);
-
     if (!f_name){
-        free(f_name);
         errno = init_errno;
         return NULL;
-    };
+    }
     FILE* f = fopen(f_name, "r");
     free(f_name);
-    if (!f) {
+    if (!f){
+        errno = init_errno;
+        return NULL;
+    }
+
+    if (fseek(f, entry_num * (JOBLOG_ENTRY_SIZE), SEEK_SET) < 0){
         fclose(f);
         errno = init_errno;
         return NULL;
     }
 
-    //int r_fseek = fseek(f, entry_num * (JOBLOG_ENTRY_SIZE - 1), SEEK_SET);
-    int r_fseek = fseek(f, entry_num * (JOBLOG_ENTRY_SIZE), SEEK_SET);
-    char s[JOBLOG_ENTRY_SIZE];
-    char * r_fgets1 = fgets(s, JOBLOG_ENTRY_SIZE, f);
-
-    if (r_fseek < 0 || !r_fgets1){
-        free(r_fgets1);
-        fclose(f);
-        errno = init_errno;
-        return NULL;
-    }
-
-    free(r_fgets1);
-
-    if (buf) {
-        char *r_fgets = fgets(buf,JOBLOG_ENTRY_SIZE,f);
-        fclose(f);
-
-        if (!r_fgets){
-            free(r_fgets);
+    if (buf){
+        if (!(fgets(buf,JOBLOG_ENTRY_SIZE,f))){
+            fclose(f);
             errno = init_errno;
             return NULL;
-
         }
-
-        free(r_fgets);
+        fclose(f);
         errno = init_errno;
         return buf;
-
     }
     else{
-        char * new_buf = malloc((JOBLOG_ENTRY_SIZE) * sizeof *new_buf);
-        //char * new_buf = malloc((JOBLOG_ENTRY_SIZE) * sizeof "a");
-
-        char *r_fgets = fgets(new_buf,JOBLOG_ENTRY_SIZE,f);
-        fclose(f);
-
-        if (!r_fgets){
-            free(r_fgets);
+        char * new_buf = calloc(JOBLOG_ENTRY_SIZE, 1 );
+        if (!fgets(new_buf,JOBLOG_ENTRY_SIZE,f)){
             free(new_buf);
+            fclose(f);
             errno = init_errno;
             return NULL;}
-
-        free(r_fgets);
-        if (!new_buf){
-            free(new_buf);
-            errno = init_errno;
-            return NULL;
-        }
-
-        //new_buf = fgets(new_buf,JOBLOG_ENTRY_SIZE,f);
+        fclose(f);
         errno = init_errno;
         return new_buf;
-        //char* new_buf = malloc()
     }
 }
 
