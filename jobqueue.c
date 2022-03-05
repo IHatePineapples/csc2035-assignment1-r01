@@ -24,7 +24,9 @@ void jobqueue_init(jobqueue_t* jq) {
  * initialise it.
  */
 jobqueue_t* jobqueue_new() {
-    return NULL;
+    jobqueue_t* jobqueue = malloc(sizeof(jobqueue_t));
+    jobqueue_init(jobqueue);
+    return jobqueue;
 }
 
 /* 
