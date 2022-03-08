@@ -31,10 +31,10 @@ static char* new_log_name(proc_t* proc) {
 
     char* log_name;
             
-    asprintf(&log_name, JOBLOG_NAME_FMT, JOBLOG_PATH, proc->type_label,
+    int i = asprintf(&log_name, JOBLOG_NAME_FMT, JOBLOG_PATH, proc->type_label,
         proc->id);
 
-    return log_name;
+    return i > -1 ? log_name: NULL;
 }
 
 /* 

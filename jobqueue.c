@@ -48,7 +48,19 @@ size_t jobqueue_capacity(jobqueue_t* jq) {
  *      this function 
  */
 job_t* jobqueue_dequeue(jobqueue_t* jq, job_t* dst) {
-    return NULL;
+   if (!jq || jobqueue_is_empty(jq)) return NULL;
+    
+   if (!dst){
+       job_t* new_dst = jobqueue_peekhead(jq, NULL);
+       job_init(&jq->jobs[jq->head]);
+       jq->head = (jq->head + 1) % jq->buf_size;
+       return new_dst;
+   }
+
+   (void) jobqueue_peekhead(jq, dst); 
+   job_init(&jq->jobs[jq->head]);
+   jq->head = (jq->head + 1 ) % jq->buf_size;
+   return dst;
 }
 
 /* 
@@ -74,7 +86,10 @@ bool jobqueue_is_empty(jobqueue_t* jq) {
  * TODO: you must implement this function.
  */
 bool jobqueue_is_full(jobqueue_t* jq) {
-    return false;
+    
+    if (!jq) return true; 
+
+    return jq->head == ((jq->tail + 1) % jq->buf_size);
 }
 
 /* 
@@ -98,12 +113,17 @@ job_t* jobqueue_peekhead(jobqueue_t* jq, job_t* dst) {
  *      calculated from those values)
  */
 job_t* jobqueue_peektail(jobqueue_t* jq, job_t* dst) {
-    return NULL;
+    
+    if (!jq || jobqueue_is_empty(jq)) return NULL;
+    int index = jq->tail < 1 ? jq->buf_size - 1 : jq->tail -1; 
+
+    return job_copy(dst, &jq->jobs[index]);
 }
 
 /* 
  * TODO: you must implement this function.
  */
 void jobqueue_delete(jobqueue_t* jq) {
+    free(jq);
     return;
 }

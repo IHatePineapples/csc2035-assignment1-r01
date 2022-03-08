@@ -23,7 +23,7 @@ job_t* job_new(pid_t pid, unsigned int id, const char* label) {
 job_t* job_copy(job_t* dst, job_t* src) {
 
     if (!src) return NULL;
-    if (dst && dst == src)return src;
+    if (dst && dst == src) return src;
 
     if (!dst){
         dst = job_new(src -> pid, src -> id, src ->label);
@@ -53,7 +53,7 @@ void job_init(job_t* job) {
  * currently only compares the pid and id fields of a job.
  */
 bool job_is_equal(job_t* j1, job_t* j2) {
-    if (j1 == NULL && j2 == NULL) return true;
+    if (!j1 && !j2) return true;
     if (!j1 || !j2) return false;
 
     int i = strncmp(j1->label,j2->label,MAX_NAME_SIZE);
@@ -78,7 +78,6 @@ job_t* job_set(job_t* job, pid_t pid, unsigned int id, const char* label) {
     }
     else {
         for (int i = 0; i < MAX_NAME_SIZE; i++) job->label[i] = PAD_CHAR;
-        //strncpy(job->label, "*******************************", MAX_NAME_SIZE);
 
     }
     job-> label[MAX_NAME_SIZE-1] = '\0' ;
