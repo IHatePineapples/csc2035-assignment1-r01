@@ -20,5 +20,27 @@ const char* SHOBJ_NAME_FORMAT = "/csc2035.%.9s.%.12s";
  *      environment (use "anon" if the function returns NULL)
  */
 char* shobject_name(char* name_buf, const char* label) {
-    return NULL;
+    
+
+    char* user = getenv("USER");
+    if (!user) user = "anon";
+
+    if (!label || !label[0] || label == "") label = "none";
+
+    int i;
+
+    if (name_buf){
+   
+    i = snprintf(name_buf,MAX_NAME_SIZE, SHOBJ_NAME_FORMAT,user,label);
+
+    if (i>-1) return name_buf;
+    snprintf(name_buf, MAX_NAME_SIZE, "/csc2035.anon.none");
+    return name_buf;}
+    
+    char* new_name_buf = calloc(MAX_NAME_SIZE, sizeof(char));
+    i = asprintf(&new_name_buf, SHOBJ_NAME_FORMAT, user, label);
+    if (i>-1) return new_name_buf;
+    snprintf(new_name_buf, MAX_NAME_SIZE, "/csc2035.anon.none");
+    return new_name_buf;
+
 }
